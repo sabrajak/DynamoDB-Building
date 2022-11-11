@@ -23,6 +23,7 @@ public class DBSchemaMap {
 	private String clusterName;
 
 	@DynamoDBRangeKey(attributeName = "schemaName")
+	@DynamoDBAttribute
 	@CustomGeneratedKey(prefix="TS_") 
 	@DynamoDBIndexRangeKey(globalSecondaryIndexNames = { "statusGSI", "customerIdGSI" })
 	private String schemaName;
@@ -36,6 +37,6 @@ public class DBSchemaMap {
 	@DynamoDBIndexHashKey(globalSecondaryIndexName = "customerIdGSI")
 	private String customerId;
 	
-	//@DynamoDBVersionAttribute
-	//private long lock;
+	@DynamoDBVersionAttribute
+	 private Long version;
 }

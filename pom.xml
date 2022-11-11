@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cisco.cx.osv</groupId>
 	<artifactId>osv-dynamodb-service-3</artifactId>
@@ -37,12 +38,37 @@
 			<artifactId>aws-java-sdk-dynamodb</artifactId>
 			<version>1.11.815</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.amazonaws</groupId>
-		    <artifactId>dynamodb-lock-client</artifactId>
-		    <version>1.0.0</version>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>dynamodb-lock-client</artifactId>
+			<version>1.0.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>5.3.21</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-secretsmanager</artifactId>
+			<version>1.11.815</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>software.amazon.awssdk</groupId>
+		    <artifactId>secretsmanager</artifactId>
+		    <version>2.17.257</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>

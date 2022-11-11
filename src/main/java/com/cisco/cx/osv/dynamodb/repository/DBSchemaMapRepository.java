@@ -15,6 +15,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.TransactionWriteRequest;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.cisco.cx.osv.dynamodb.entity.DBSchemaMap;
+import com.cisco.cx.osv.dynamodb.entity.SchemaStatus;
 
 @Repository
 public class DBSchemaMapRepository {
@@ -83,7 +84,8 @@ public class DBSchemaMapRepository {
 
 		return result;
 	}
-
+	TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
+	
 	public String lock(DBSchemaMap dbSchemaMap) throws InterruptedException {
 
 		Map<String, String> attributeNames = new HashMap<String, String>();
@@ -92,14 +94,24 @@ public class DBSchemaMapRepository {
 		Map<String, AttributeValue> attributeValues = new HashMap<String, AttributeValue>();
 		attributeValues.put(":status", new AttributeValue().withS("AVAILABLE"));
 
-		DynamoDBTransactionWriteExpression conditionExpressionForConditionCheck = new DynamoDBTransactionWriteExpression()
-				.withConditionExpression("#status = :status").withExpressionAttributeNames(attributeNames)
-				.withExpressionAttributeValues(attributeValues);
+		/*
+		 * DynamoDBTransactionWriteExpression conditionExpressionForConditionCheck = new
+		 * DynamoDBTransactionWriteExpression()
+		 * .withConditionExpression("#status = :status").withExpressionAttributeNames(
+		 * attributeNames) .withExpressionAttributeValues(attributeValues);
+		 */
 
-		TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
-		transactionWriteRequest.addPut(dbSchemaMap, conditionExpressionForConditionCheck);
+		/*
+		 * TransactionWriteRequest transactionWriteRequest = new
+		 * TransactionWriteRequest(); transactionWriteRequest.addPut(dbSchemaMap,
+		 * conditionExpressionForConditionCheck);
+		 */
 
-		Thread.sleep(60000);
+		
+		//TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
+		transactionWriteRequest.addPut(dbSchemaMap);
+		
+		Thread.sleep(30000);
 		mapper.transactionWrite(transactionWriteRequest);
 		return "String updated!!";
 
@@ -113,16 +125,21 @@ public class DBSchemaMapRepository {
 		Map<String, AttributeValue> attributeValues = new HashMap<String, AttributeValue>();
 		attributeValues.put(":status", new AttributeValue().withS("AVAILABLE"));
 
-		DynamoDBTransactionWriteExpression conditionExpressionForConditionCheck = new DynamoDBTransactionWriteExpression()
-				.withConditionExpression("#status = :status").withExpressionAttributeNames(attributeNames)
-				.withExpressionAttributeValues(attributeValues);
+		//DynamoDBTransactionWriteExpression conditionExpressionForConditionCheck = new DynamoDBTransactionWriteExpression();
+				//.withConditionExpression("#status = :status").withExpressionAttributeNames(attributeNames)
+				//.withExpressionAttributeValues(attributeValues);
 
-		TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
-		transactionWriteRequest.addPut(dbSchemaMap, conditionExpressionForConditionCheck);
-
+		//TransactionWriteRequest transactionWriteRequest = new TransactionWriteRequest();
+		transactionWriteRequest.addPut(dbSchemaMap);
+		
+		//mapper.transactionWrite(transactionWriteRequest);
+		
+		transactionWriteRequest.addPut(new DBSchemaMap("a", "b", SchemaStatus.AVAILABLE, null, null));
+		
 		mapper.transactionWrite(transactionWriteRequest);
+		
 		return "String updated!!";
 
 	}
-
+	
 }

@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClusterSecrets implements Serializable {
-   @DynamoDBAttribute
-   private String username;
-    @DynamoDBAttribute
-   private String password;
+  @DynamoDBAttribute private String host;
+  @DynamoDBAttribute private String credential;
 }
