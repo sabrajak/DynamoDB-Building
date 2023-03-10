@@ -3,6 +3,8 @@ package com.cisco.cx.osv.dynamodb.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.cisco.cx.osv.dynamodb.entity.*;
+import com.cisco.cx.osv.dynamodb.repository.PfmRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,10 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cisco.cx.osv.dynamodb.entity.Cluster;
-import com.cisco.cx.osv.dynamodb.entity.DBSchemaMap;
-import com.cisco.cx.osv.dynamodb.entity.LogLevels;
-import com.cisco.cx.osv.dynamodb.entity.SchemaMigrationAudit;
 import com.cisco.cx.osv.dynamodb.repository.ClusterRepository;
 import com.cisco.cx.osv.dynamodb.repository.DBSchemaMapRepository;
 import com.cisco.cx.osv.dynamodb.repository.SchemaMigrationAuditRepository;
@@ -33,12 +31,18 @@ public class DynamoController {
 	@Autowired
 	private SchemaMigrationAuditRepository schemaMigrationAuditRepo;
 
+	@Autowired
+	private PfmRepository pfmRepository;
+
 	@GetMapping("/")
-	public String display() {
+	public SWRecommendationMetrics display() {
+
+		SWRecommendationMetrics  swRecommendationMetrics = new SWRecommendationMetrics();
+		swRecommendationMetrics.setDate("Date");
+		swRecommendationMetrics.setTimestamp(1L);
+		swRecommendationMetrics.setVolumeAsset(1);
 		
-		System.out.println(LocalDateTime.now());
-		
-		return "Hello";
+		return pfmRepository.addcluster(swRecommendationMetrics);
 	}
 
 	// Table 1

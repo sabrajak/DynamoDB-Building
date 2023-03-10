@@ -51,6 +51,7 @@ public class OsvDynamodbService3Application {
 		requestList.add(getCreateTableRequest_osv_database_cluster());
 		requestList.add(getCreateTableRequest_osv_database_schema_map());
 		requestList.add(osv_audit_new());
+		//requestList.add(osv_pfm_recommendation());
 
 		for (CreateTableRequest request : requestList) {
 			try {
@@ -108,6 +109,7 @@ public class OsvDynamodbService3Application {
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("tenantId").withAttributeType("S"));
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("tenancy").withAttributeType("S"));
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("schemaType").withAttributeType("S"));
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("catalog").withAttributeType("S"));
 
 		ArrayList<KeySchemaElement> keySchema = new ArrayList<>();
 		keySchema.add(new KeySchemaElement().withAttributeName("clusterName").withKeyType(KeyType.HASH));
@@ -153,134 +155,30 @@ public class OsvDynamodbService3Application {
 
 		schemaTypeLSI.setKeySchema(schemaTypeLSIKeySchema);
 
+		// LSI for catalogLSI
+		LocalSecondaryIndex catalogLSI = new LocalSecondaryIndex().withIndexName("catalogLSI")
+				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
+
+		ArrayList<KeySchemaElement> catalogLSIKeySchema = new ArrayList<KeySchemaElement>();
+		catalogLSIKeySchema.add(new KeySchemaElement().withAttributeName("clusterName").withKeyType(KeyType.HASH));
+		catalogLSIKeySchema.add(new KeySchemaElement().withAttributeName("catalog").withKeyType(KeyType.RANGE));
+
+		catalogLSI.setKeySchema(catalogLSIKeySchema);
+
+
+
 		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
-				.withLocalSecondaryIndexes(statusLSI, customerIdLSI,tenancyLSI,schemaTypeLSI)
+				.withLocalSecondaryIndexes(statusLSI, customerIdLSI, tenancyLSI, schemaTypeLSI, catalogLSI)
 				.withProvisionedThroughput(
 						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
 				.withTableName("osv_database_schema");
-	}
-	private static CreateTableRequest osv_audit() {
-
-		ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>();
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("requestId").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("auditTimestamp").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("datetime").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("requestType").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("requestStatus").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("referenceId").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("requestDepth").withAttributeType("N"));
-		attributeDefinitions
-				.add(new AttributeDefinition().withAttributeName("requestStatusType").withAttributeType("S"));
-
-		ArrayList<KeySchemaElement> keySchema = new ArrayList<>();
-		keySchema.add(new KeySchemaElement().withAttributeName("requestId").withKeyType(KeyType.HASH));
-		keySchema.add(new KeySchemaElement().withAttributeName("auditTimestamp").withKeyType(KeyType.RANGE));
-
-		// GSI for parent_request-by-datetime
-		GlobalSecondaryIndex mainRequestGSI = new GlobalSecondaryIndex().withIndexName("parent_request-by-datetime")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> mainRequestGSIKeySchema = new ArrayList<KeySchemaElement>();
-		mainRequestGSIKeySchema.add(new KeySchemaElement().withAttributeName("referenceId").withKeyType(KeyType.HASH));
-		mainRequestGSIKeySchema.add(new KeySchemaElement().withAttributeName("datetime").withKeyType(KeyType.RANGE));
-		mainRequestGSI.setKeySchema(mainRequestGSIKeySchema);
-
-		// GSI for parent_request-by-request_status
-		GlobalSecondaryIndex mainRequestStatusGSI = new GlobalSecondaryIndex()
-				.withIndexName("parent_request-by-request_status")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> mainRequestStatusGSIKeySchema = new ArrayList<KeySchemaElement>();
-		mainRequestStatusGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("referenceId").withKeyType(KeyType.HASH));
-		mainRequestStatusGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("requestStatus").withKeyType(KeyType.RANGE));
-		mainRequestStatusGSI.setKeySchema(mainRequestStatusGSIKeySchema);
-
-		// GSI for request_status-by-datetime
-
-		GlobalSecondaryIndex RequestStatusGSI = new GlobalSecondaryIndex().withIndexName("request_status-by-datetime")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> RequestStatusGSIKeySchema = new ArrayList<KeySchemaElement>();
-		RequestStatusGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("requestStatus").withKeyType(KeyType.HASH));
-		RequestStatusGSIKeySchema.add(new KeySchemaElement().withAttributeName("datetime").withKeyType(KeyType.RANGE));
-		RequestStatusGSI.setKeySchema(RequestStatusGSIKeySchema);
-
-		// GSI for request_type-by-datetime
-
-		GlobalSecondaryIndex RequestTypeGSI = new GlobalSecondaryIndex().withIndexName("request_type-by-datetime")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> RequestTypeGSIKeySchema = new ArrayList<KeySchemaElement>();
-		RequestTypeGSIKeySchema.add(new KeySchemaElement().withAttributeName("requestType").withKeyType(KeyType.HASH));
-		RequestTypeGSIKeySchema.add(new KeySchemaElement().withAttributeName("datetime").withKeyType(KeyType.RANGE));
-		RequestTypeGSI.setKeySchema(RequestTypeGSIKeySchema);
-
-		// GSI for parent_request-by-timestamp
-		GlobalSecondaryIndex RequestTimestampGSI = new GlobalSecondaryIndex()
-				.withIndexName("parent_request-by-timestamp")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> RequestTimestampGSIKeySchema = new ArrayList<KeySchemaElement>();
-		RequestTimestampGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("referenceId").withKeyType(KeyType.HASH));
-		RequestTimestampGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("auditTimestamp").withKeyType(KeyType.RANGE));
-		RequestTimestampGSI.setKeySchema(RequestTimestampGSIKeySchema);
-
-		// GSI for main_request-by-timestamp
-		GlobalSecondaryIndex mainRequestTimestampGSI = new GlobalSecondaryIndex()
-				.withIndexName("main_request-by-timestamp")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> mainRequestTimestampGSIKeySchema = new ArrayList<KeySchemaElement>();
-		mainRequestTimestampGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("requestDepth").withKeyType(KeyType.HASH));
-		mainRequestTimestampGSIKeySchema
-				.add(new KeySchemaElement().withAttributeName("auditTimestamp").withKeyType(KeyType.RANGE));
-		mainRequestTimestampGSI.setKeySchema(mainRequestTimestampGSIKeySchema);
-
-		// GSI for parent_request-by-status_type
-		GlobalSecondaryIndex GSI_1 = new GlobalSecondaryIndex().withIndexName("parent_request-by-status_type")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> GSI_1_KeySchema = new ArrayList<KeySchemaElement>();
-		GSI_1_KeySchema.add(new KeySchemaElement().withAttributeName("referenceId").withKeyType(KeyType.HASH));
-		GSI_1_KeySchema.add(new KeySchemaElement().withAttributeName("requestStatusType").withKeyType(KeyType.RANGE));
-
-		GSI_1.setKeySchema(GSI_1_KeySchema);
-
-		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
-
-				.withGlobalSecondaryIndexes(mainRequestGSI, mainRequestStatusGSI, RequestStatusGSI, RequestTypeGSI,
-						RequestTimestampGSI, mainRequestTimestampGSI, GSI_1)
-
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withTableName("osv_audit");
 	}
 
 	private static CreateTableRequest osv_audit_new() {
 
 		ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("requestId").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("auditTimestamp").withAttributeType("S"));
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("auditTimestamp").withAttributeType("N"));
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("referenceId").withAttributeType("S"));
 		attributeDefinitions
 				.add(new AttributeDefinition().withAttributeName("requestStatusType").withAttributeType("S"));
@@ -315,13 +213,30 @@ public class OsvDynamodbService3Application {
 
 		GSI_1.setKeySchema(GSI_1_KeySchema);
 
+
+
 		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
-
+				//.withLocalSecondaryIndexes(requestStatusTypeLSI)
 				.withGlobalSecondaryIndexes(RequestTimestampGSI, GSI_1)
-
 				.withProvisionedThroughput(
 						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
 				.withTableName("osv_audit");
+	}
+
+	private static CreateTableRequest osv_pfm_recommendation() {
+
+		ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("date").withAttributeType("S"));
+		attributeDefinitions.add(new AttributeDefinition().withAttributeName("timestamp").withAttributeType("N"));
+
+		ArrayList<KeySchemaElement> keySchema = new ArrayList<>();
+		keySchema.add(new KeySchemaElement().withAttributeName("date").withKeyType(KeyType.HASH));
+		keySchema.add(new KeySchemaElement().withAttributeName("timestamp").withKeyType(KeyType.RANGE));
+
+		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
+				.withProvisionedThroughput(
+						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
+				.withTableName("osv_pfm_recommendation");
 	}
 
 	/*private static JsonNode getSecrets() {
