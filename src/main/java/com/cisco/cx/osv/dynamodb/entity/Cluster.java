@@ -19,7 +19,6 @@ public class Cluster implements Serializable {
 
   @DynamoDBHashKey private String clusterName;
   @DynamoDBAttribute ClusterSecrets clusterSecrets;
+  @DynamoDBAttribute String clusterTag;
   @DynamoDBAttribute private int tenantCapacity;
-  @DynamoDBIndexHashKey(globalSecondaryIndexName = "find-by-defaultCluster")
-  @DynamoDBAttribute private boolean defaultCluster;
 }

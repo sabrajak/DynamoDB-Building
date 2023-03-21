@@ -77,24 +77,12 @@ public class OsvDynamodbService3Application {
 
 		ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>();
 		attributeDefinitions.add(new AttributeDefinition().withAttributeName("clusterName").withAttributeType("S"));
-		attributeDefinitions.add(new AttributeDefinition().withAttributeName("defaultCluster").withAttributeType("N"));
 
 		ArrayList<KeySchemaElement> keySchema = new ArrayList<>();
 		keySchema.add(new KeySchemaElement().withAttributeName("clusterName").withKeyType(KeyType.HASH));
 
-		// GSI for isdefault
-		GlobalSecondaryIndex defaultGSI = new GlobalSecondaryIndex().withIndexName("defaultClusterGSI")
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
-				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-
-		ArrayList<KeySchemaElement> defaultGSIKeySchema = new ArrayList<KeySchemaElement>();
-		defaultGSIKeySchema.add(new KeySchemaElement().withAttributeName("defaultCluster").withKeyType(KeyType.HASH));
-
-		defaultGSI.setKeySchema(defaultGSIKeySchema);
 
 		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
-				.withGlobalSecondaryIndexes(defaultGSI)
 				.withProvisionedThroughput(
 						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
 				.withTableName("osv_database_cluster");
