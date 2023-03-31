@@ -201,10 +201,20 @@ public class OsvDynamodbService3Application {
 
 		GSI_1.setKeySchema(GSI_1_KeySchema);
 
+		// LSI for requestStatusTypeLSI
+		LocalSecondaryIndex requestStatusTypeLSI = new LocalSecondaryIndex().withIndexName("requestStatusTypeLSI")
+				.withProjection(new Projection().withProjectionType(ProjectionType.ALL));
+
+		ArrayList<KeySchemaElement> requestStatusTypeLSIKeySchema = new ArrayList<KeySchemaElement>();
+		requestStatusTypeLSIKeySchema.add(new KeySchemaElement().withAttributeName("requestId").withKeyType(KeyType.HASH));
+		requestStatusTypeLSIKeySchema.add(new KeySchemaElement().withAttributeName("requestStatusType").withKeyType(KeyType.RANGE));
+
+		requestStatusTypeLSI.setKeySchema(requestStatusTypeLSIKeySchema);
+
 
 
 		return new CreateTableRequest().withAttributeDefinitions(attributeDefinitions).withKeySchema(keySchema)
-				//.withLocalSecondaryIndexes(requestStatusTypeLSI)
+				.withLocalSecondaryIndexes(requestStatusTypeLSI)
 				.withGlobalSecondaryIndexes(RequestTimestampGSI, GSI_1)
 				.withProvisionedThroughput(
 						new ProvisionedThroughput().withReadCapacityUnits(10L).withWriteCapacityUnits(5L))
